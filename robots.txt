@@ -1,0 +1,3 @@
+User-agent: *
+   Allow: /
+   Sitemap: https://vatsalm30.github.io/sitemap.xml
