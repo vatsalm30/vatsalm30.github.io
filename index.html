@@ -111,6 +111,37 @@
         .project-stat .val { font-family:'JetBrains Mono',monospace; font-weight:700; font-size:0.95rem; color:var(--green); }
         .project-stat .lbl { font-size:0.65rem; color:var(--text-dim); text-transform:uppercase; letter-spacing:0.06em; }
 
+        /* GITHUB ACTIVITY */
+        .gh-card { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:1.8rem; position:relative; }
+        .gh-head { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1.3rem; }
+        .gh-total { font-family:'JetBrains Mono',monospace; font-size:0.9rem; color:var(--text-mid); }
+        .gh-total b { color:var(--green); font-size:1.05rem; font-weight:700; }
+        .gh-scroll { overflow-x:auto; overflow-y:hidden; padding-bottom:0.4rem; }
+        .gh-scroll::-webkit-scrollbar { height:5px; }
+        .gh-scroll::-webkit-scrollbar-track { background:var(--surface-2); border-radius:3px; }
+        .gh-scroll::-webkit-scrollbar-thumb { background:var(--border-hover); border-radius:3px; }
+        .gh-inner { display:flex; gap:0.5rem; min-width:max-content; }
+        .gh-days { display:grid; grid-template-rows:repeat(7,13px); gap:3px; padding-top:17px; font-family:'JetBrains Mono',monospace; font-size:0.58rem; color:var(--text-dim); }
+        .gh-days span { line-height:13px; }
+        .gh-months { display:grid; grid-auto-flow:column; gap:3px; height:17px; font-family:'JetBrains Mono',monospace; font-size:0.6rem; color:var(--text-dim); }
+        .gh-months span { white-space:nowrap; }
+        .gh-grid { display:grid; grid-template-rows:repeat(7,13px); grid-auto-flow:column; gap:3px; }
+        .gh-cell { display:block; width:13px; height:13px; border-radius:3px; background:var(--surface-2); border:1px solid rgba(255,255,255,0.03); transition:transform 0.15s; }
+        .gh-cell.l1 { background:rgba(0,229,154,0.22); border-color:rgba(0,229,154,0.15); }
+        .gh-cell.l2 { background:rgba(0,229,154,0.45); border-color:rgba(0,229,154,0.3); }
+        .gh-cell.l3 { background:rgba(0,229,154,0.7); border-color:rgba(0,229,154,0.5); }
+        .gh-cell.l4 { background:var(--green); border-color:var(--green); box-shadow:0 0 8px var(--green-glow); }
+        .gh-grid .gh-cell:hover { transform:scale(1.35); border-color:var(--text); }
+        .gh-cell.gh-pad { background:transparent; border-color:transparent; }
+        .gh-foot { display:flex; justify-content:space-between; align-items:center; gap:1rem; margin-top:0.9rem; flex-wrap:wrap; }
+        .gh-state { font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:var(--text-dim); }
+        .gh-state a { color:var(--green); }
+        .gh-legend { display:flex; align-items:center; gap:4px; margin-left:auto; font-family:'JetBrains Mono',monospace; font-size:0.62rem; color:var(--text-dim); }
+        .gh-legend span:first-child { margin-right:2px; }
+        .gh-legend span:last-child { margin-left:2px; }
+        .gh-tip { position:absolute; padding:0.35rem 0.6rem; background:var(--surface-3); border:1px solid var(--border-hover); border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:0.68rem; color:var(--text); white-space:nowrap; pointer-events:none; opacity:0; transform:translate(-50%,-100%); transition:opacity 0.15s; z-index:10; }
+        .gh-tip.show { opacity:1; }
+
         /* SKILLS */
         .skills-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1.5rem; }
         .skill-category { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:1.8rem; }
@@ -175,6 +206,8 @@
             .projects-grid { grid-template-columns:1fr; }
             .exp-header { flex-direction:column; }
             .exp-meta { text-align:left; }
+            .gh-card { padding:1.2rem; }
+            .gh-days { display:none; }
         }
     </style>
 </head>
@@ -187,6 +220,7 @@
     <ul class="nav-links" id="nav-links">
         <li><a href="#experience">Experience</a></li>
         <li><a href="#projects">Projects</a></li>
+        <li><a href="#activity">Activity</a></li>
         <li><a href="#skills">Skills</a></li>
         <li><a href="#education">Education</a></li>
         <li><a href="#contact">Contact</a></li>
@@ -366,6 +400,31 @@
     </div>
 </section>
 
+<!-- GITHUB ACTIVITY -->
+<section id="activity">
+    <div class="reveal"><div class="section-label">Activity</div><div class="section-title">A Year of Commits</div></div>
+    <div class="gh-card reveal" id="gh-card">
+        <div class="gh-head">
+            <div class="gh-total"><b id="gh-total">—</b> contributions in the last year</div>
+            <a href="https://github.com/vatsalm30" target="_blank" class="project-gh"><svg fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>@vatsalm30</a>
+        </div>
+        <div class="gh-scroll" id="gh-scroll">
+            <div class="gh-inner">
+                <div class="gh-days"><span></span><span>Mon</span><span></span><span>Wed</span><span></span><span>Fri</span><span></span></div>
+                <div>
+                    <div class="gh-months" id="gh-months"></div>
+                    <div class="gh-grid" id="gh-grid"></div>
+                </div>
+            </div>
+        </div>
+        <div class="gh-foot">
+            <div class="gh-state" id="gh-state">Loading contribution data…</div>
+            <div class="gh-legend"><span>Less</span><i class="gh-cell l0"></i><i class="gh-cell l1"></i><i class="gh-cell l2"></i><i class="gh-cell l3"></i><i class="gh-cell l4"></i><span>More</span></div>
+        </div>
+        <div class="gh-tip" id="gh-tip"></div>
+    </div>
+</section>
+
 <!-- SKILLS -->
 <section id="skills">
     <div class="reveal"><div class="section-label">Skills</div><div class="section-title">Technical Arsenal</div></div>
@@ -435,6 +494,73 @@ document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 document.getElementById('hamburger').addEventListener('click',()=>document.getElementById('nav-links').classList.toggle('open'));
 document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>document.getElementById('nav-links').classList.remove('open')));
 function filterProjects(tag,btn){document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.querySelectorAll('.project-card').forEach(card=>{const tags=card.getAttribute('data-tags')||'';card.style.display=(tag==='all'||tags.includes(tag))?'':'none'})}
+
+/* GITHUB CONTRIBUTION GRAPH — last 365 days, rendered from public contributions API */
+(function(){
+  const USER='vatsalm30';
+  const API='https://github-contributions-api.jogruber.de/v4/'+USER+'?y=last';
+  const CACHE_KEY='gh-contrib-'+USER, CACHE_TTL=6*60*60*1000;
+  const MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const card=document.getElementById('gh-card'), grid=document.getElementById('gh-grid'),
+        months=document.getElementById('gh-months'), tip=document.getElementById('gh-tip'),
+        state=document.getElementById('gh-state'), scroll=document.getElementById('gh-scroll');
+  const $=id=>document.getElementById(id);
+  const parseDay=s=>{const p=s.split('-').map(Number);return new Date(p[0],p[1]-1,p[2])};
+  const fmt=d=>MONTHS[d.getMonth()]+' '+d.getDate()+', '+d.getFullYear();
+
+  function render(payload){
+    const days=payload.contributions;
+    const total=payload.total&&payload.total.lastYear!=null?payload.total.lastYear:days.reduce((a,d)=>a+d.count,0);
+    const pad=parseDay(days[0].date).getDay();
+    const weeks=Math.ceil((pad+days.length)/7);
+    grid.innerHTML=''; months.innerHTML='';
+    months.style.gridTemplateColumns='repeat('+weeks+',13px)';
+
+    for(let i=0;i<pad;i++){const s=document.createElement('span');s.className='gh-cell gh-pad';grid.appendChild(s)}
+    let lastMonth=-1;
+    days.forEach((d,i)=>{
+      const dt=parseDay(d.date), cell=document.createElement('span');
+      cell.className='gh-cell l'+d.level;
+      cell.dataset.label=(d.count||'No')+' contribution'+(d.count===1?'':'s')+' · '+fmt(dt);
+      grid.appendChild(cell);
+      const col=Math.floor((pad+i)/7)+1;
+      if(dt.getDate()===1&&dt.getMonth()!==lastMonth&&col<=weeks-2){
+        lastMonth=dt.getMonth();
+        const lbl=document.createElement('span');
+        lbl.textContent=MONTHS[dt.getMonth()];
+        lbl.style.gridColumn=col;
+        months.appendChild(lbl);
+      }
+    });
+
+    $('gh-total').textContent=total.toLocaleString();
+    state.textContent=fmt(parseDay(days[0].date))+' → '+fmt(parseDay(days[days.length-1].date));
+    scroll.scrollLeft=scroll.scrollWidth;
+  }
+
+  grid.addEventListener('mouseover',e=>{
+    const c=e.target.closest('.gh-cell');
+    if(!c||!c.dataset.label){tip.classList.remove('show');return}
+    tip.textContent=c.dataset.label;
+    const cr=c.getBoundingClientRect(), pr=card.getBoundingClientRect();
+    tip.style.left=(cr.left-pr.left+cr.width/2)+'px';
+    tip.style.top=(cr.top-pr.top-6)+'px';
+    tip.classList.add('show');
+  });
+  grid.addEventListener('mouseleave',()=>tip.classList.remove('show'));
+
+  let cache=null;
+  try{const raw=JSON.parse(localStorage.getItem(CACHE_KEY));if(raw&&raw.data&&raw.data.contributions)cache=raw}catch(e){}
+  if(cache&&Date.now()-cache.t<CACHE_TTL){render(cache.data);return}
+  fetch(API).then(r=>{if(!r.ok)throw 0;return r.json()}).then(d=>{
+    if(!d||!Array.isArray(d.contributions)||!d.contributions.length)throw 0;
+    try{localStorage.setItem(CACHE_KEY,JSON.stringify({t:Date.now(),data:d}))}catch(e){}
+    render(d);
+  }).catch(()=>{
+    if(cache){render(cache.data);return}
+    state.innerHTML='Couldn\'t load live contribution data — <a href="https://github.com/'+USER+'" target="_blank">view it on GitHub</a>.';
+  });
+})();
 </script>
 </body>
 </html>
