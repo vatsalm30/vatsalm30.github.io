@@ -148,8 +148,8 @@ export default {
     const origin = req.headers.get('Origin');
 
     if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(origin) });
-    if (url.pathname === '/collect' && req.method === 'POST') return collect(req, env, ctx);
-    if (url.pathname === '/p.gif') return pixel(req, env, ctx);
+    if (url.pathname === '/e' && req.method === 'POST') return collect(req, env, ctx);
+    if (url.pathname === '/px') return pixel(req, env, ctx);
 
     if (url.pathname === '/' || url.pathname === '/dashboard' || url.pathname === '/api/stats') {
       if (!authorized(req, env)) return needAuth();

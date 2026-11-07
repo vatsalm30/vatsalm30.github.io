@@ -507,13 +507,13 @@
 </section>
 
 <footer>&copy; 2026 Vatsal Maheshwari · Built with purpose.</footer>
-<noscript><img src="https://site-analytics.vatsalm30.workers.dev/p.gif?p=/" width="1" height="1" alt="" style="position:absolute;left:-9999px"></noscript>
+<noscript><img src="https://vm-edge.vatsalm30.workers.dev/px?p=/" width="1" height="1" alt="" style="position:absolute;left:-9999px"></noscript>
 
 <script>
 /* ANALYTICS: pageviews, clicks, sections viewed, active time, scroll depth -> Cloudflare Worker.
    Add ?notrack to the URL once to exclude your own browser (?track re-enables). */
 (function(){
-  var PROD='https://site-analytics.vatsalm30.workers.dev';
+  var PROD='https://vm-edge.vatsalm30.workers.dev';
   var local=/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
   var E=local?'http://localhost:8788':PROD;
   var qs=location.search;
@@ -530,8 +530,8 @@
   function flush(){
     if(!q.length)return;
     var body=JSON.stringify({v:V,s:S,scr:screen.width+'x'+screen.height,events:q.splice(0)});
-    if(!(navigator.sendBeacon&&navigator.sendBeacon(E+'/collect',new Blob([body],{type:'text/plain'}))))
-      try{fetch(E+'/collect',{method:'POST',body:body,keepalive:true,mode:'cors'})}catch(e){}
+    if(!(navigator.sendBeacon&&navigator.sendBeacon(E+'/e',new Blob([body],{type:'text/plain'}))))
+      try{fetch(E+'/e',{method:'POST',body:body,keepalive:true,mode:'cors'})}catch(e){}
   }
   function engage(){var d=active-sent;if(d>=1000||maxScroll){push({type:'engage',dur:d,scroll:maxScroll});sent=active}}
   var utm=(qs.match(/[?&]utm_source=([^&]+)/)||[])[1];
