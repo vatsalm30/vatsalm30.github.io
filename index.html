@@ -507,6 +507,72 @@
 </section>
 
 <footer>&copy; 2026 Vatsal Maheshwari · Built with purpose.</footer>
+<noscript><img src="https://site-analytics.vatsalm30.workers.dev/p.gif?p=/" width="1" height="1" alt="" style="position:absolute;left:-9999px"></noscript>
+
+<script>
+/* ANALYTICS: pageviews, clicks, sections viewed, active time, scroll depth -> Cloudflare Worker.
+   Add ?notrack to the URL once to exclude your own browser (?track re-enables). */
+(function(){
+  var PROD='https://site-analytics.vatsalm30.workers.dev';
+  var local=/^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+  var E=local?'http://localhost:8788':PROD;
+  var qs=location.search;
+  try{
+    if(/[?&]notrack\b/.test(qs))localStorage.setItem('va_off','1');
+    if(/[?&]track\b/.test(qs))localStorage.removeItem('va_off');
+    if(localStorage.getItem('va_off')||(local&&!/[?&]track\b/.test(qs)))return;
+  }catch(e){}
+  function rid(){return Math.random().toString(36).slice(2)+Date.now().toString(36)}
+  function store(s,k){try{var v=s.getItem(k);if(!v){v=rid();s.setItem(k,v)}return v}catch(e){return rid()}}
+  var V=store(localStorage,'va_vid'), S=store(sessionStorage,'va_sid'), path=location.pathname+location.hash;
+  var q=[], active=0, sent=0, maxScroll=0, last=Date.now(), seen={};
+  function push(e){e.path=path;q.push(e);if(q.length>=20)flush()}
+  function flush(){
+    if(!q.length)return;
+    var body=JSON.stringify({v:V,s:S,scr:screen.width+'x'+screen.height,events:q.splice(0)});
+    if(!(navigator.sendBeacon&&navigator.sendBeacon(E+'/collect',new Blob([body],{type:'text/plain'}))))
+      try{fetch(E+'/collect',{method:'POST',body:body,keepalive:true,mode:'cors'})}catch(e){}
+  }
+  function engage(){var d=active-sent;if(d>=1000||maxScroll){push({type:'engage',dur:d,scroll:maxScroll});sent=active}}
+  var utm=(qs.match(/[?&]utm_source=([^&]+)/)||[])[1];
+  push({type:'pageview',ref:document.referrer||'',utm:utm?decodeURIComponent(utm):undefined});
+
+  ['mousemove','keydown','scroll','touchstart','click'].forEach(function(t){addEventListener(t,function(){last=Date.now()},{passive:true})});
+  setInterval(function(){if(document.visibilityState==='visible'&&Date.now()-last<30000)active+=1000},1000);
+  setInterval(function(){engage();flush()},15000);
+  addEventListener('scroll',function(){
+    var h=document.documentElement, p=Math.round((h.scrollTop+innerHeight)/h.scrollHeight*100);
+    if(p>maxScroll)maxScroll=Math.min(p,100);
+  },{passive:true});
+  document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden'){engage();flush()}});
+  addEventListener('pagehide',function(){engage();flush()});
+
+  document.addEventListener('click',function(ev){
+    var el=ev.target.closest&&ev.target.closest('[data-track],a,button,.exp-card,.project-card,.skill-pill');
+    if(!el)return;
+    var label=el.getAttribute('data-track');
+    if(!label){
+      var name=el.querySelector&&el.querySelector('.exp-company,.project-name');
+      if(el.matches('.exp-card,.project-card')&&!ev.target.closest('a'))label=(el.matches('.exp-card')?'Experience: ':'Project: ')+(name?name.textContent:'');
+      else label=(el.getAttribute('aria-label')||el.textContent||'').replace(/\s+/g,' ').trim();
+      var sec=el.closest('section[id],nav,footer');
+      if(sec&&el.tagName==='A')label+=' ('+(sec.id||sec.tagName.toLowerCase())+')';
+      if(el.tagName==='A'&&el.closest('.project-card')){var pn=el.closest('.project-card').querySelector('.project-name');label='Repo: '+(pn?pn.textContent:'')}
+    }
+    var href=el.tagName==='A'?el.href:undefined;
+    push({type:'click',target:label.slice(0,120),href:href});
+    if(href&&!href.startsWith(location.origin))flush();
+  },true);
+
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){
+      var id=e.target.id||'hero';
+      if(e.isIntersecting&&!seen[id]){seen[id]=1;push({type:'section',target:id});io.unobserve(e.target)}
+    })},{rootMargin:'-45% 0px -45% 0px'});
+    document.querySelectorAll('section').forEach(function(s){io.observe(s)});
+  }
+})();
+</script>
 
 <script>
 const glow=document.getElementById('cursor-glow');

@@ -1,0 +1,14 @@
+name = "site-analytics"
+main = "src/index.js"
+compatibility_date = "2025-06-01"
+workers_dev = true
+
+[[rules]]
+type = "Text"
+globs = ["**/*.html"]
+fallthrough = true
+
+[[d1_databases]]
+binding = "DB"
+database_name = "site-analytics"
+database_id = "2381c7c6-4e82-4020-bb18-42e465ca9f4f"

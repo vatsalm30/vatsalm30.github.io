@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex">
+<title>Site Analytics</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root { --bg:#060610; --surface:#0e0e1a; --surface-2:#151525; --border:#252540; --text:#e4e4f0; --dim:#7a7a9a; --mid:#a0a0be; --green:#00e59a; --green-dim:rgba(0,229,154,0.12); }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); padding:2rem 16px 4rem; }
+  .wrap { max-width:1200px; margin:0 auto; }
+  header { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem; margin-bottom:1.8rem; }
+  h1 { font-size:1.6rem; font-weight:800; letter-spacing:-0.02em; }
+  h1 span { color:var(--green); }
+  .sub { font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--dim); margin-top:0.2rem; }
+  .live { display:inline-flex; align-items:center; gap:0.4rem; color:var(--green); }
+  .live i { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); }
+  .range { display:flex; gap:0.4rem; }
+  .range button { font-family:'JetBrains Mono',monospace; font-size:0.72rem; padding:0.4rem 0.9rem; border-radius:100px; background:var(--surface); border:1px solid var(--border); color:var(--dim); cursor:pointer; }
+  .range button.on, .range button:hover { border-color:var(--green); color:var(--green); background:var(--green-dim); }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:1rem; margin-bottom:1rem; }
+  .kpi, .card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:1.1rem 1.2rem; }
+  .kpi .v { font-family:'JetBrains Mono',monospace; font-size:1.55rem; font-weight:700; color:var(--green); }
+  .kpi .l { font-size:0.7rem; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; margin-top:0.15rem; }
+  .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; margin-bottom:1rem; }
+  .grid3 { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  .card h2 { font-family:'JetBrains Mono',monospace; font-size:0.72rem; color:var(--mid); text-transform:uppercase; letter-spacing:0.1em; margin-bottom:0.9rem; font-weight:500; }
+  .full { margin-bottom:1rem; }
+  .chart-box { position:relative; height:240px; }
+  .bars { display:flex; flex-direction:column; gap:0.45rem; }
+  .bar { position:relative; display:flex; justify-content:space-between; gap:1rem; padding:0.35rem 0.6rem; font-size:0.83rem; border-radius:6px; overflow:hidden; }
+  .bar::before { content:''; position:absolute; inset:0; width:var(--w); background:var(--green-dim); border-radius:6px; }
+  .bar span { position:relative; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .bar b { position:relative; font-family:'JetBrains Mono',monospace; font-weight:500; color:var(--mid); }
+  .empty { color:var(--dim); font-size:0.82rem; font-style:italic; }
+  .tbl-wrap { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-size:0.8rem; }
+  th { text-align:left; font-family:'JetBrains Mono',monospace; font-size:0.65rem; color:var(--dim); text-transform:uppercase; letter-spacing:0.08em; font-weight:500; padding:0.5rem; border-bottom:1px solid var(--border); white-space:nowrap; }
+  td { padding:0.55rem 0.5rem; border-bottom:1px solid var(--border); color:var(--mid); vertical-align:top; }
+  td.num { font-family:'JetBrains Mono',monospace; color:var(--text); white-space:nowrap; }
+  td.path { max-width:340px; color:var(--dim); font-size:0.75rem; }
+  .err { background:rgba(244,63,94,0.1); border:1px solid rgba(244,63,94,0.3); color:#f43f5e; padding:1rem; border-radius:10px; display:none; margin-bottom:1rem; }
+  @media (max-width:860px) { .grid, .grid3 { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div>
+      <h1>vatsal<span>.analytics</span></h1>
+      <div class="sub"><span class="live"><i></i><b id="live">0</b>&nbsp;active now</span> · updated <span id="updated">—</span></div>
+    </div>
+    <div class="range" id="range">
+      <button data-d="1">24h</button><button data-d="7" class="on">7d</button><button data-d="30">30d</button><button data-d="90">90d</button><button data-d="365">1y</button>
+    </div>
+  </header>
+  <div class="err" id="err"></div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v" id="k-visitors">—</div><div class="l">Unique visitors</div></div>
+    <div class="kpi"><div class="v" id="k-sessions">—</div><div class="l">Sessions</div></div>
+    <div class="kpi"><div class="v" id="k-pageviews">—</div><div class="l">Pageviews</div></div>
+    <div class="kpi"><div class="v" id="k-time">—</div><div class="l">Avg time on site</div></div>
+    <div class="kpi"><div class="v" id="k-scroll">—</div><div class="l">Avg scroll depth</div></div>
+    <div class="kpi"><div class="v" id="k-bounce">—</div><div class="l">Bounce rate</div></div>
+  </div>
+
+  <div class="card full"><h2>Visitors &amp; pageviews</h2><div class="chart-box"><canvas id="c-daily"></canvas></div></div>
+
+  <div class="grid">
+    <div class="card"><h2>Top clicks</h2><div class="bars" id="b-clicks"></div></div>
+    <div class="card"><h2>Sections reached (sessions)</h2><div class="bars" id="b-sections"></div></div>
+  </div>
+  <div class="grid">
+    <div class="card"><h2>Time on site</h2><div class="chart-box"><canvas id="c-dur"></canvas></div></div>
+    <div class="card"><h2>Referrers</h2><div class="bars" id="b-refs"></div></div>
+  </div>
+  <div class="grid grid3">
+    <div class="card"><h2>Countries</h2><div class="bars" id="b-countries"></div></div>
+    <div class="card"><h2>Devices</h2><div class="bars" id="b-devices"></div></div>
+    <div class="card"><h2>Browsers</h2><div class="bars" id="b-browsers"></div></div>
+  </div>
+
+  <div class="card full"><h2>Recent sessions</h2><div class="tbl-wrap"><table>
+    <thead><tr><th>When</th><th>Where</th><th>Device</th><th>From</th><th>Time</th><th>Scroll</th><th>Clicks</th><th>Click path</th></tr></thead>
+    <tbody id="t-sessions"></tbody>
+  </table></div></div>
+  <div class="sub" id="pixel-note"></div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]));
+const fmtDur = ms => { if (!ms) return '0s'; const s = Math.round(ms / 1000); return s < 60 ? s + 's' : Math.floor(s / 60) + 'm ' + (s % 60) + 's'; };
+const fmtNum = n => (n ?? 0).toLocaleString();
+const ago = t => { const m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'just now' : m < 60 ? m + 'm ago' : m < 1440 ? Math.round(m / 60) + 'h ago' : Math.round(m / 1440) + 'd ago'; };
+const flag = cc => cc && cc.length === 2 ? String.fromCodePoint(...[...cc.toUpperCase()].map(c => 0x1F1A5 + c.charCodeAt(0))) + ' ' : '';
+const shortRef = r => { try { return new URL(r).hostname.replace(/^www\./, ''); } catch { return r; } };
+
+Chart.defaults.color = '#7a7a9a';
+Chart.defaults.font.family = "'JetBrains Mono', monospace";
+Chart.defaults.font.size = 11;
+let days = 7, charts = {};
+
+function bars(el, rows, label = r => r.k) {
+  const max = Math.max(1, ...rows.map(r => r.n));
+  $(el).innerHTML = rows.length
+    ? rows.map(r => `<div class="bar" style="--w:${(r.n / max * 100).toFixed(1)}%"><span title="${esc(label(r))}">${esc(label(r))}</span><b>${fmtNum(r.n)}</b></div>`).join('')
+    : '<div class="empty">No data yet</div>';
+}
+
+function chart(id, cfg) { charts[id]?.destroy(); charts[id] = new Chart($(id), cfg); }
+
+async function load() {
+  let d;
+  try {
+    const res = await fetch('/api/stats?days=' + days, { credentials: 'same-origin' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    d = await res.json();
+    $('err').style.display = 'none';
+  } catch (e) { $('err').textContent = 'Could not load stats: ' + e.message; $('err').style.display = 'block'; return; }
+
+  const t = d.totals;
+  $('k-visitors').textContent = fmtNum(t.visitors);
+  $('k-sessions').textContent = fmtNum(t.sessions);
+  $('k-pageviews').textContent = fmtNum(t.pageviews);
+  $('k-time').textContent = fmtDur(t.avg_ms);
+  $('k-scroll').textContent = t.avg_scroll != null ? Math.round(t.avg_scroll) + '%' : '—';
+  $('k-bounce').textContent = t.bounce != null ? Math.round(t.bounce * 100) + '%' : '—';
+  $('live').textContent = t.live;
+  $('updated').textContent = new Date(d.generated).toLocaleTimeString();
+  $('pixel-note').textContent = t.pixel ? `+ ${fmtNum(t.pixel)} no-JS pixel hits in this range` : '';
+
+  chart('c-daily', {
+    type: 'line',
+    data: { labels: d.daily.map(r => r.day.slice(5)), datasets: [
+      { label: 'Visitors', data: d.daily.map(r => r.visitors), borderColor: '#00e59a', backgroundColor: 'rgba(0,229,154,0.12)', fill: true, tension: 0.3, pointRadius: 3 },
+      { label: 'Pageviews', data: d.daily.map(r => r.pageviews), borderColor: '#8b5cf6', borderDash: [4, 4], tension: 0.3, pointRadius: 2 },
+    ] },
+    options: { maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#1c1c30' } }, x: { grid: { display: false } } },
+      plugins: { legend: { labels: { boxWidth: 10 } } } },
+  });
+
+  const order = ['<10s', '10–30s', '30–60s', '1–3m', '3–10m', '10m+'];
+  const dmap = Object.fromEntries(d.durations.map(r => [r.k, r.n]));
+  chart('c-dur', {
+    type: 'bar',
+    data: { labels: order, datasets: [{ data: order.map(k => dmap[k] || 0), backgroundColor: '#00e59a', borderRadius: 4 }] },
+    options: { maintainAspectRatio: false, plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#1c1c30' } }, x: { grid: { display: false } } } },
+  });
+
+  bars('b-clicks', d.clicks, r => r.target || r.href || '(unlabeled)');
+  bars('b-sections', d.sections);
+  bars('b-refs', d.referrers.map(r => ({ k: r.ref === 'Direct / none' ? r.ref : shortRef(r.ref), n: r.n })));
+  bars('b-countries', d.countries, r => flag(r.k) + r.k);
+  bars('b-devices', d.devices);
+  bars('b-browsers', d.browsers);
+
+  $('t-sessions').innerHTML = d.sessions.length ? d.sessions.map(s => `<tr>
+      <td class="num">${ago(s.start)}</td>
+      <td>${flag(s.country)}${esc([s.city, s.country].filter(Boolean).join(', ') || '—')}</td>
+      <td>${esc([s.device, s.browser, s.os].filter(Boolean).join(' · '))}</td>
+      <td>${esc(s.ref ? shortRef(s.ref) : 'Direct')}</td>
+      <td class="num">${fmtDur(s.dur)}</td>
+      <td class="num">${s.scroll != null ? s.scroll + '%' : '—'}</td>
+      <td class="num">${s.clicks}</td>
+      <td class="path">${esc(s.click_path || '')}</td></tr>`).join('')
+    : '<tr><td colspan="8" class="empty">No sessions yet</td></tr>';
+}
+
+$('range').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  document.querySelectorAll('#range button').forEach(x => x.classList.toggle('on', x === b));
+  days = +b.dataset.d; load();
+});
+load();
+setInterval(load, 60000);
+</script>
+</body>
+</html>
